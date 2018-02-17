@@ -1,0 +1,14 @@
+Let's simulate a agile board like a Scrum Board, Kanban or ... ;)
+/////////////////////////////
+// TODO:
+////////////////////////////
+- Connect Street View and Maps
+- Showing Restaurants on the Map
+/////////////////////////////
+//  Work In Progress
+/////////////////////////////
+- Rewrite React JS into Vanilla JS and JQuery
+/////////////////////////////
+// Done
+/////////////////////////////
+- Rewrite data in JSON Object
