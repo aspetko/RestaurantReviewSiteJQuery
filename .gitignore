@@ -7,6 +7,8 @@
 .env.test.local
 .env.production.local
 RestaurantReviewSiteOld
+RestaurantReviewSiteNext
+alex-restaurant-test
 
 npm-debug.log*
 .idea/

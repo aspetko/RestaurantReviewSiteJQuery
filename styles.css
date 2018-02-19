@@ -1,0 +1,58 @@
+* {
+  outline: 1px dotted red;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+#mymap {
+  margin-left: -15px;
+  height: 700px;
+  width: 100%;
+}
+
+.App {
+  text-align: center;
+}
+
+#App-header {
+  background: linear-gradient(blue, lightblue);
+  height: 75px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+#left-image{
+  position: absolute;
+  top: -20px;
+  left: -35px;
+}
+
+#right-image{
+  position: absolute;
+  top: -20px;
+  right: -36px;
+}
+
+#ratingList {
+  /*margin-top: 300px;*/
+}
+
+.App-intro {
+  font-size: large;
+}
+
+#restaurantStars{
+  font-size: smaller;
+}
+
+#restaurantStars2{
+  font-size: smaller;
+}
