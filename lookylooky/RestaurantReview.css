@@ -1,0 +1,20 @@
+
+#state {
+    width: 20px;
+    float: left;
+}
+
+
+#street-view {
+    /*margin-left: 200px;*/
+    /*height: 800px;*/
+    height: 400px;
+    background-color: #1c7430;
+    width: 300px;
+    /*width: 100%;*/
+    /*top: 40px;*/
+}
+
+
+
+
