@@ -263,6 +263,9 @@ function listRestaurants(from, to, bounds) {
     }
 }
 
+var onSpot = false;
+//var onSpot = true;
+
 function initialize() {
     ///////// Position = Golden Gate Bridge
     var position = new google.maps.LatLng(37.820667, -122.478526);
@@ -290,26 +293,28 @@ function initialize() {
     var geocoder = new window.google.maps.Geocoder();
     var infoWindow = new window.google.maps.InfoWindow({map: map});
     // Try HTML5 geolocation.
-    // if (navigator.geolocation) {
-    //     navigator.geolocation.getCurrentPosition(function (thePosition) {
-    //         pos = {
-    //             lat: thePosition.coords.latitude,
-    //             lng: thePosition.coords.longitude
-    //         };
-    //         infoWindow.setPosition(pos);
-    //         infoWindow.setContent("Location found.");
-    //         map.setCenter(pos);
-    //         position = pos;
-    //         console.log(position);
-    //     }, function () {
-    //         infoWindow.setPosition(position);
-    //         infoWindow.setContent("Error: The Geolocation service failed.");
-    //     });
-    // } else {
-    //     // Browser doesn't support Geolocation
-    //     infoWindow.setPosition(position);
-    //     infoWindow.setContent("Error: Your browser doesn't support geolocation.");
-    // }
+    if (onSpot){
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (thePosition) {
+                pos = {
+                    lat: thePosition.coords.latitude,
+                    lng: thePosition.coords.longitude
+                };
+                infoWindow.setPosition(pos);
+                infoWindow.setContent("Location found.");
+                map.setCenter(pos);
+                position = pos;
+                console.log(position);
+            }, function () {
+                infoWindow.setPosition(position);
+                infoWindow.setContent("Error: The Geolocation service failed.");
+            });
+        } else {
+            // Browser doesn't support Geolocation
+            infoWindow.setPosition(position);
+            infoWindow.setContent("Error: Your browser doesn't support geolocation.");
+        }
+    }
     ////////// Add a list of restaurants...
     var locations = [];
     locations.push({locationID: 1, name: "Ivvi's Bistro<br> Westendstraße 1<br>", latlng: new google.maps.LatLng(48.174702, 11.750214)});
