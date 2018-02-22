@@ -61,9 +61,9 @@
           <h2>List of Restaurants</h2>
           <div class="col-sm-3" id="ratingList">
               From:
-              <input type="number" min="1" max="5" steps="1" value="1" onChange="fromSelectionChanged()">
+              <input type="number" id="fromStars" min="1" max="5" steps="1" value="1" onChange="selectionChanged()">
               To:
-              <input type="number" min="1" max="5" steps="1" value="5" onChange="toSelectionChanged()">
+              <input type="number" id="toStars" min="1" max="5" steps="1" value="5" onChange="selectionChanged()">
           </div>
           <div id="restaurants"/>
           <br>
@@ -71,6 +71,36 @@
     </div>
   </main>
 <!-- End of Map and Review Part -->
+      <!--<div class="container">-->
+          <!--<h2></h2>-->
+          <!-- Trigger the modal with a button -->
+          <!--<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Large Modal</button>-->
+
+          <!-- Modal Street View -->
+          <div class="modal fade" id="myModal" role="dialog">
+              <div class="modal-dialog modal-md">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h4 class="modal-title"><div id="title"/></h4>
+                      </div>
+                      <div class="modal-body">
+                          <div class="row">
+                              <div class="col-md-8">
+                                  <div id="street-view"/>
+                              </div>
+                              <div class="col-md-4">
+                                  <div id="reviews"/>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      <!-- End of Modal Street View -->
 
 <!-- FOOTER -->
   <footer class="footer">
