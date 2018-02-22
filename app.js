@@ -1,3 +1,4 @@
+var filterBounds;
 // var restaurants = [
 //     {
 //         "restaurantName": "Bronco",
@@ -195,40 +196,72 @@ var restaurants = [
 
 
 
-function listRestaurants(from, to) {
+// function listRestaurants(from, to) {
+//     $('#restaurants').empty();
+//     var restaurantDiv = "";
+//     for(var i=0; i< restaurants.length; i++) {
+//         if (restaurants[i].stars >= from && restaurants[i].stars<= to) {
+//             restaurantDiv += '<div class="restaurant"><h1>' + restaurants[i].restaurantName + ' <span>';
+//             for (var b = 0; b < 5; b++) {
+//                 if (b < restaurants[i].stars) {
+//                     restaurantDiv += '<span class="glyphicon glyphicon-star" id="restaurantStars" aria-hidden="true"/>';
+//                 } else {
+//                     restaurantDiv += '<span class="glyphicon glyphicon-star-empty" id="restaurantStars2" aria-hidden="true"/>';
+//                 }
+//             }
+//             restaurantDiv += '</span></h1><p>' + restaurants[i].address_street + '</p><p>' + restaurants[i].address_city + '</p></div>';
+//
+//             for (var j = 0; j < restaurants[i].ratings.length; j++) {
+//                 restaurantDiv += '<hr>';
+//                 for (var a = 0; a < 5; a++) {
+//                     if (a < restaurants[i].ratings[j].stars) {
+//                         restaurantDiv += '<span class="glyphicon glyphicon-star" aria-hidden="true"/>';
+//                     } else {
+//                         restaurantDiv += '<span class="glyphicon glyphicon-star-empty" aria-hidden="true"/>';
+//                     }
+//                 }
+//                 restaurantDiv += '<br>' + restaurants[i].ratings[j].comment;
+//             }
+//
+//             $('#restaurants').append(restaurantDiv);
+//             restaurantDiv = "";
+//         }
+//     }
+// }
+
+function listRestaurants(from, to, bounds) {
     $('#restaurants').empty();
     var restaurantDiv = "";
-    for(var i=0; i< restaurants.length; i++) {
-        if (restaurants[i].stars >= from && restaurants[i].stars<= to) {
-            restaurantDiv += '<div class="restaurant"><h1>' + restaurants[i].restaurantName + ' <span>';
-            for (var b = 0; b < 5; b++) {
-                if (b < restaurants[i].stars) {
-                    restaurantDiv += '<span class="glyphicon glyphicon-star" id="restaurantStars" aria-hidden="true"/>';
-                } else {
-                    restaurantDiv += '<span class="glyphicon glyphicon-star-empty" id="restaurantStars2" aria-hidden="true"/>';
-                }
-            }
-            restaurantDiv += '</span></h1><p>' + restaurants[i].address_street + '</p><p>' + restaurants[i].address_city + '</p></div>';
 
-            for (var j = 0; j < restaurants[i].ratings.length; j++) {
-                restaurantDiv += '<hr>';
-                for (var a = 0; a < 5; a++) {
-                    if (a < restaurants[i].ratings[j].stars) {
-                        restaurantDiv += '<span class="glyphicon glyphicon-star" aria-hidden="true"/>';
+    for(var i=0; i< restaurants.length; i++) {
+        // Check if restaurant is on map ...
+        if (bounds.contains(new google.maps.LatLng(restaurants[i].lat, restaurants[i].long))){
+            console.log("boundsIn 1 ", restaurants[i].restaurantName);
+            // Check if restaurant is within range of the customer's assumption
+            if (restaurants[i].stars >= from && restaurants[i].stars<= to) {
+                restaurantDiv += '<div class="restaurant"><h3>' + restaurants[i].restaurantName + ' <span>';
+                // Draw the stars...
+                for (var b = 0; b < 5; b++) {
+                    // filled one's..
+                    if (b < restaurants[i].stars) {
+                        restaurantDiv += '<span class="glyphicon glyphicon-star" id="restaurantStars" aria-hidden="true"/>';
                     } else {
-                        restaurantDiv += '<span class="glyphicon glyphicon-star-empty" aria-hidden="true"/>';
+                        // empty one's
+                        restaurantDiv += '<span class="glyphicon glyphicon-star-empty" id="restaurantStars2" aria-hidden="true"/>';
                     }
                 }
-                restaurantDiv += '<br>' + restaurants[i].ratings[j].comment;
-            }
+                restaurantDiv += '</span></h3><p>' + restaurants[i].address_street + '</p><p>' + restaurants[i].address_city + '</p></div>';
 
-            $('#restaurants').append(restaurantDiv);
-            restaurantDiv = "";
+                $('#restaurants').append(restaurantDiv);
+                restaurantDiv = "";
+            }
+        } else {
+            // DEBUG purpose: remove before going to production...
+            console.log("boundsOut 1 ",  restaurants[i].restaurantName);
         }
+
     }
 }
-
-listRestaurants(1,5);
 
 function initialize() {
     ///////// Position = Golden Gate Bridge
@@ -328,19 +361,17 @@ function initialize() {
         bounds.extend(locations[i].latlng);
     }
     map.fitBounds(bounds);
-
+    filterBounds = bounds;
+    listRestaurants(1,5,bounds);
 }
-
 
 function selectionChanged(){
     try{
+
         var from = $("#fromStars").val();
         var to = $("#toStars").val();
-        listRestaurants(from, to);
+        listRestaurants(from, to, filterBounds);
     } catch(err){
         console.log(err);
     }
 }
-
-
-
