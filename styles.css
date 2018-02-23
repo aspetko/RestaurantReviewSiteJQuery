@@ -65,3 +65,9 @@ body {
   /*top: 40px;*/
 }
 
+#restaurantsScrollPane {
+  height: 600px;
+  width: 320px;
+  overflow-y: scroll;
+  float: right
+}
