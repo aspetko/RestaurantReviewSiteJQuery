@@ -236,7 +236,6 @@ function listRestaurants(from, to, bounds) {
     for(var i=0; i< restaurants.length; i++) {
         // Check if restaurant is on map ...
         if (bounds.contains(new google.maps.LatLng(restaurants[i].lat, restaurants[i].long))){
-            console.log("boundsIn 1 ", restaurants[i].restaurantName);
             // Check if restaurant is within range of the customer's assumption
             if (restaurants[i].stars >= from && restaurants[i].stars<= to) {
                 restaurantDiv += '<div class="restaurant"><h3>' + restaurants[i].restaurantName + ' <span>';
@@ -255,20 +254,51 @@ function listRestaurants(from, to, bounds) {
                 $('#restaurants').append(restaurantDiv);
                 restaurantDiv = "";
             }
-        } else {
-            // DEBUG purpose: remove before going to production...
-            console.log("boundsOut 1 ",  restaurants[i].restaurantName);
         }
 
     }
 }
 
-var onSpot = false;
-//var onSpot = true;
+// var onSpot = false;
+var onSpot = true;
 
 function initialize() {
+    ////////// Geolocation
+    var geocoder = new window.google.maps.Geocoder();
+    var infoWindow = new window.google.maps.InfoWindow({map: map});
+
     ///////// Position = Golden Gate Bridge
     var position = new google.maps.LatLng(37.820667, -122.478526);
+
+    // Try HTML5 geolocation.
+    if (onSpot){
+        console.log("Using HTML5 geolocation");
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (thePosition) {
+                position = {
+                    lat: thePosition.coords.latitude,
+                    lng: thePosition.coords.longitude
+                };
+                infoWindow.setPosition(position);
+                infoWindow.setContent("Location found.");
+                map.setCenter(position);
+                console.log("navigator.geolocation", onSpot);
+                console.log("position1", position);
+            }, function () {
+                infoWindow.setPosition(position);
+                infoWindow.setContent("Error: The Geolocation service failed.");
+                console.log("position2", position);
+            });
+        } else {
+            // Browser doesn't support Geolocation
+            infoWindow.setPosition(position);
+            infoWindow.setContent("Error: Your browser doesn't support geolocation.");
+            console.log("position3", position);
+        }
+    } else { // Set the loaction to fallback
+        console.log("Using Fallback");
+        position = new google.maps.LatLng(48.175708, 11.7558223);
+    }
 
     /////// Display basic map
     var mapDiv = document.getElementById("mymap");
@@ -278,91 +308,84 @@ function initialize() {
         scrollWheel: true,
         draggable: true,
         maxZoom: 15,
-        minZoom: 3,
+        minZoom: 3,
         zoom: 15,
         zoomControlOptions: {
             position: google.maps.ControlPosition.BOTTOM_LEFT,
             style: google.maps.ZoomControlStyle.DEFAULT
         },
-        mapTypeId: google.maps.MapTypeId.ROADMAP
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
         //     mapTypeId: google.maps.MapTypeId.SATELLITE
+        streetViewControl: false
     };
     var map = new google.maps.Map(mapDiv, mapOptions);
 
-    ////////// Geolocation
-    var geocoder = new window.google.maps.Geocoder();
-    var infoWindow = new window.google.maps.InfoWindow({map: map});
-    // Try HTML5 geolocation.
-    if (onSpot){
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (thePosition) {
-                pos = {
-                    lat: thePosition.coords.latitude,
-                    lng: thePosition.coords.longitude
-                };
-                infoWindow.setPosition(pos);
-                infoWindow.setContent("Location found.");
-                map.setCenter(pos);
-                position = pos;
-                console.log(position);
-            }, function () {
-                infoWindow.setPosition(position);
-                infoWindow.setContent("Error: The Geolocation service failed.");
-            });
-        } else {
-            // Browser doesn't support Geolocation
-            infoWindow.setPosition(position);
-            infoWindow.setContent("Error: Your browser doesn't support geolocation.");
-        }
-    }
+    ////////////// Limit to the current location...
+    var bounds = new google.maps.LatLngBounds();
+    console.log("bounds", bounds.toString());
+
+
+    console.log("position4", position.toString());
+    var lat = position.lat();
+    console.log("lat", lat);
+    var lng =  position.lng();
+    console.log("lng", lng);
+
+
     ////////// Add a list of restaurants...
     var locations = [];
-    locations.push({locationID: 1, name: "Ivvi's Bistro<br> Westendstraße 1<br>", latlng: new google.maps.LatLng(48.174702, 11.750214)});
-    locations.push({locationID: 2, name: "Indisches Restaurant Shiva<br> Am Brunnen 17,<br> 85551 Kirchheim bei München", latlng: new google.maps.LatLng(48.174033, 11.750664)});
-    locations.push({locationID: 3, name: "Restaurant Olympia<br> Griechisches Restaurant", latlng: new google.maps.LatLng(48.175984, 11.752758)});
-    locations.push({locationID: 4, name: "s`Kiramer Wirtshäusl", latlng: new google.maps.LatLng(48.176406, 11.754196)});
-    locations.push({locationID: 5, name: "Gasthof Neuwirt<br>Erdinger Str. 2", latlng: new google.maps.LatLng(48.177089, 11.756471)});
-    locations.push({locationID: 6, name: "KSC Geschäftsstelle Kirchheimer Sport-Club e.V.<br>Florianstraße 26", latlng: new google.maps.LatLng( 48.174498, 11.761715)});
-    var bounds = new google.maps.LatLngBounds();
+    for (var r=0;r<restaurants.length; r++){
+        locations.push({
+            locationID: r,
+            name: restaurants[r].restaurantName,
+            latlng: new google.maps.LatLng(
+                restaurants[r].lat,
+                restaurants[r].long
+            )
+        });
+    }
+
     for (var i = 0 ; i<locations.length; i++){
         var marker = new google.maps.Marker({position: locations[i].latlng, map: map, title: locations[i].name});
         marker.setValues({restaurant_id: locations[i].locationID});
 
-        /////////// Click Event Listener
-        google.maps.event.addListener(marker, 'click', function(){
-            var marker = this;
-            var panoramaDiv = document.getElementById('street-view');
-            var panorama = new google.maps.StreetViewPanorama(
-                panoramaDiv, {
-                    position: marker.getPosition(),
-                    pov: {
-                        heading: 34,
-                        pitch: 10
-                    }
-                });
-            //////////// Check if Streetview is available
-            var streetViewService = new google.maps.StreetViewService();
-            var STREETVIEW_MAX_DISTANCE = 100;
+        // Check if restaurant is on map ...
+        if (bounds.contains(new google.maps.LatLng(restaurants[i].lat, restaurants[i].long))) {
+            console.log("inBounds:" , locations[i].name);
+            /////////// Click Event Listener
+            google.maps.event.addListener(marker, 'click', function(){
+                var marker = this;
+                var panoramaDiv = document.getElementById('street-view');
+                var panorama = new google.maps.StreetViewPanorama(
+                    panoramaDiv, {
+                        position: marker.getPosition(),
+                        pov: {
+                            heading: 34,
+                            pitch: 10
+                        }
+                    });
+                //////////// Check if Streetview is available
+                var streetViewService = new google.maps.StreetViewService();
+                var STREETVIEW_MAX_DISTANCE = 100;
 
-            streetViewService.getPanoramaByLocation(marker.getPosition(), STREETVIEW_MAX_DISTANCE,
-                function (streetViewPanoramaData, status) {
-                    if (status === google.maps.StreetViewStatus.OK) {
-                        map.setStreetView(panorama);
-                    } else {
-                        panoramaDiv.css("width", "500px");
-                        panoramaDiv.css("height", "20px");
-                        panoramaDiv.text("We deeply regret, unfortunately there is no picture available for this establishment.");
-                    }
-                });
-
-
-
-            $('#title').empty();
-            $('#title').append(marker.getTitle());
-            $('#myModal').modal('show');
-            // console.log('restaurant_id', marker.get('restaurant_id'));
-
-        });
+                streetViewService.getPanoramaByLocation(marker.getPosition(), STREETVIEW_MAX_DISTANCE,
+                    function (streetViewPanoramaData, status) {
+                        if (status === google.maps.StreetViewStatus.OK) {
+                            map.setStreetView(panorama);
+                        } else {
+                            panoramaDiv.css("width", "500px");
+                            panoramaDiv.css("height", "20px");
+                            panoramaDiv.text("We deeply regret, unfortunately there is no picture available for this establishment.");
+                        }
+                    });
+                $('#title').empty();
+                $('#title').append(marker.getTitle());
+                $('#myModal').modal('show');
+                // console.log('restaurant_id', marker.get('restaurant_id'));
+            });
+        } else {
+            console.log("outBounds:", locations[i].name);
+        }
         bounds.extend(locations[i].latlng);
     }
     map.fitBounds(bounds);
