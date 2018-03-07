@@ -1,2 +1,2 @@
 # RestaurantReviewSiteJQuery
-Restaurant review site for openclassrooms written in VanillaJS/JQery
+Restaurant review site for openclassrooms written in VanillaJS/JQuery
