@@ -29,6 +29,20 @@ var map;
 var service;
 var infowindow;
 var position;
+var restaurantIcon;
+
+// Marker Icon
+//////////////////////
+function createIcon() {
+    return {
+        // url: "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png",
+        size: new google.maps.Size(71, 71),
+        url: "https://maps.gstatic.com/mapfiles/place_api/icons/generic_business-71.png",
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(17, 34),
+        scaledSize: new google.maps.Size(25, 25)
+    };
+}
 
 var restaurants = [
     {
@@ -74,7 +88,7 @@ var restaurants = [
         ]
     },
     {
-        "id": "ab6b5eee12de0152d4908c04ce22ec333b5d2bd2",
+        "id": "ChIJBZOi5MELnkcRCz99WgCIHRI",
         "restaurantName": "Restaurant Olympia<br> Griechisches Restaurant",
         "address_street": "Heimstettner Str. 2",
         "address_city": "85551 Kirchheim",
@@ -249,51 +263,47 @@ function listRestaurants(from, to) {
     }
 }
 
+function dataHelper(result){
+    var starsHelper = (result.rating !== undefined? result.rating : "1");
+    return {
+            "id": result.place_id,
+            "restaurantName": result.name,
+            "address_street": result.vicinity.substring(0, result.vicinity.indexOf(",")),
+            "address_city": result.vicinity.substring(result.vicinity.indexOf(",")),
+            "lat": result.geometry.location.lat(),
+            "long": result.geometry.location.lng(),
+            "stars": starsHelper,
+            "heading": 34,
+            "pitch": 10,
+            "ratings": [
+            ],
+            "provided_by": "G"
+        };
+};
+
+
+
 function callback(results, status) {
     filterRestaurants = [];
+    restaurantIcon = createIcon();
     var found = false;
-    //////////////////
+    //////////////////////////////////////////
     // First add the most common denominators
     for (var j=0; j<results.length; j++){
         found = false;
         for(var k=0; k<restaurants.length; k++) {
             if (results[j].place_id === restaurants[k].id) {
-                restaurants[k].provided_by = 'G|A';
+                restaurants[k].provided_by = "G|A";
                 filterRestaurants.push(restaurants[k]);
                 found = true;
             }
         }
         if (!found){
-            console.log("SX", results[j]);
-
-            var helper =
-            {
-                "id": results[j].place_id,
-                "restaurantName": results[j].name,
-                "address_street": "Westendstraße 1",
-                "address_city": "85551 Kirchheim bei München",
-                "lat": results[j].geometry.location.lat(),
-                "long": results[j].geometry.location.lng(),
-                "stars": results[j].rating,
-                "heading": 34,
-                "pitch": 10,
-                "ratings": [
-                    {
-                        "stars": "4",
-                        "comment": "Great! But not many veggie options."
-                    },
-                    {
-                        "stars": "5",
-                        "comment": "My favorite restaurant!"
-                    }
-                ],
-                "provided_by": 'G'
-            };
-            filterRestaurants.push(helper);
+            filterRestaurants.push(dataHelper(results[j]));
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Make the list complete by adding my stuff, not clear if this is the right place...
+    // Make the list complete by adding my stuff, from the backend...
     for(var my=0; my<restaurants.length; my++) {
         var found = false;
         for (var j=0; j<results.length; j++){
@@ -303,42 +313,44 @@ function callback(results, status) {
         }
         if (!found){
             /////////////////////////
-            // Only local places!
-
-            console.log("distance", restaurants[my].restaurantName, getDistanceInMeter(position, restaurants[my].lat, restaurants[my].long));
-            restaurants[my].provided_by = 'A';
-            filterRestaurants.push(restaurants[my]);
+            // Add places not known to google but added by the customers. Only local places, please!
+            if (getDistanceInMeter(position, restaurants[my].lat, restaurants[my].long)<1000){
+                restaurants[my].provided_by = "A";
+                filterRestaurants.push(restaurants[my]);
+            }
         }
     }
+    ////////////////////////////
+    // Debug info:
+    // console.log("results", results);
+    // console.log("filterRestaurants", filterRestaurants );
 
-
-
-
-    console.log("filterRestaurants", filterRestaurants );
-    console.log("results", results);
+    ////////////////////////////////////////
+    // Draw the search results on the map
     if (status == google.maps.places.PlacesServiceStatus.OK) {
         bounds = new google.maps.LatLngBounds();
-        for (var i = 0; i < results.length; i++) {
-            var place = results[i];
-            console.log("place", place);
-            // createMarkers(results[i]);
+        for (var r=0; r<filterRestaurants.length; r++){
+            console.log("filterRestaurants contains:", filterRestaurants[r].restaurantName);
 
-
-
-            // filterRestaurants.push
-            var image = {
-                url: place.icon,
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(17, 34),
-                scaledSize: new google.maps.Size(25, 25)
-            };
             var marker = new google.maps.Marker({
                 map: map,
-                icon: image,
-                title: place.name,
-                position: results[i].geometry.location
+                icon: restaurantIcon,
+                title: filterRestaurants[r].restaurantName,
+                position: new google.maps.LatLng(
+                    filterRestaurants[r].lat, filterRestaurants[r].long
+                )
             });
+        }
+
+
+
+
+
+
+
+
+        for (var i = 0; i < results.length; i++) {
+
             /////////// Click Event Listener
             google.maps.event.addListener(marker, 'click', function(){
                 var marker = this;
@@ -353,7 +365,7 @@ function callback(results, status) {
                     });
                 //////////// Check if Streetview is available
                 var streetViewService = new google.maps.StreetViewService();
-                var STREETVIEW_MAX_DISTANCE = 100;
+                var STREETVIEW_MAX_DISTANCE = 1000;
 
                 streetViewService.getPanoramaByLocation(marker.getPosition(), STREETVIEW_MAX_DISTANCE,
                     function (streetViewPanoramaData, status) {
@@ -373,7 +385,7 @@ function callback(results, status) {
                 $('#myModal').modal('show');
                 console.log('restaurant_id', marker.get('restaurant_id'));
             });
-            bounds.extend(place.geometry.location);
+            bounds.extend(results[i].geometry.location);
         }
         listRestaurants(1,5);
        map.fitBounds(bounds);
@@ -405,13 +417,11 @@ function initialize() {
             }, function () {
                 infoWindow.setPosition(position);
                 infoWindow.setContent("Error: The Geolocation service failed.");
-                console.log("position2", position);
             });
         } else {
             // Browser doesn't support Geolocation
             infoWindow.setPosition(position);
             infoWindow.setContent("Error: Your browser doesn't support geolocation.");
-            console.log("position3", position);
         }
     } else { // Set the loaction to fallback
         console.log("Using Fallback");
@@ -439,7 +449,7 @@ function initialize() {
     console.log("position", position.toString());
     var request = {
         location: position,
-        radius: '500',
+        radius: '1000',
         type: ['restaurant']
     };
     // console.log("request",request.location.toString());
