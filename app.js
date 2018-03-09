@@ -51,7 +51,7 @@ var restaurants = [
             "address_street": "Westendstraße 1",
             "address_city": "85551 Kirchheim bei München",
             "lat": "48.174702",
-            "long": "11.750214",
+            "lng": "11.750214",
             "stars": 4,
             "heading": 34,
             "pitch": 10,
@@ -72,7 +72,7 @@ var restaurants = [
         "address_street": "Am Brunnen 17",
         "address_city": "85551 Kirchheim bei München",
         "lat": "48.174033",
-        "long": "11.750664",
+        "lng": "11.750664",
         "stars": 5,
         "heading": 34,
         "pitch": 10,
@@ -93,7 +93,7 @@ var restaurants = [
         "address_street": "Heimstettner Str. 2",
         "address_city": "85551 Kirchheim",
         "lat": "48.175984",
-        "long": "11.752758",
+        "lng": "11.752758",
         "stars": 5,
         "heading": 34,
         "pitch": 10,
@@ -114,7 +114,7 @@ var restaurants = [
         "address_street": "Münchener Strasse 5a",
         "address_city": "85551 Kirchheim bei München",
         "lat": "48.176406",
-        "long": "11.754196",
+        "lng": "11.754196",
         "stars": 5,
         "heading": 34,
         "pitch": 10,
@@ -135,7 +135,7 @@ var restaurants = [
         "address_street": "Erdinger Str. 2",
         "address_city": "85551 Kirchheim bei München",
         "lat": "48.177089",
-        "long": "11.756471",
+        "lng": "11.756471",
         "stars": 5,
         "heading": 34,
         "pitch": 10,
@@ -156,7 +156,7 @@ var restaurants = [
         "address_street": "Florianstraße 26",
         "address_city": "85551 Kirchheim bei München",
         "lat": "48.174498",
-        "long": "11.761715",
+        "lng": "11.761715",
         "stars": 5,
         "heading": 34,
         "pitch": 10,
@@ -177,7 +177,7 @@ var restaurants = [
         "address_street": "If this shows up, we did not filter the list correct!",
         "address_city": "Las Vegas",
         "lat": "36.255123",
-        "long": "-115.2383485",
+        "lng": "-115.2383485",
         "stars": 5,
         "heading": 34,
         "pitch": 10,
@@ -198,7 +198,7 @@ var restaurants = [
         "address_street": "I always want to fly 9 hours to get a '7 Layer Burrito'",
         "address_city": "New York",
         "lat": "40.7143528",
-        "long": "-74.0059730",
+        "lng": "-74.0059730",
         "stars": 5,
         "heading": 34,
         "pitch": 10,
@@ -234,31 +234,23 @@ function listRestaurants(from, to) {
     $('#restaurants').empty();
     var restaurantDiv = "";
 
-    for(var i=0; i< restaurants.length; i++) {
-        // Check if restaurant is on map ...
-
-        if (bounds !== null && bounds.contains(new google.maps.LatLng(restaurants[i].lat, restaurants[i].long))){
-            console.log('list in', restaurants[i].restaurantName);
-            // Check if restaurant is within range of the customer's assumption
-            if (restaurants[i].stars >= from && restaurants[i].stars<= to) {
-                restaurantDiv += '<div class="restaurant"><h3>' + restaurants[i].restaurantName + '</h3><span>';
-                // Draw the stars...
-                for (var b = 0; b < 5; b++) {
-                    // filled one's..
-                    if (b < restaurants[i].stars) {
-                        restaurantDiv += '<span class="glyphicon glyphicon-star" id="restaurantStars" aria-hidden="true"/>';
-                    } else {
-                        // empty one's
-                        restaurantDiv += '<span class="glyphicon glyphicon-star-empty" id="restaurantStars2" aria-hidden="true"/>';
-                    }
+    for (var i = 0; i < filterRestaurants.length; i++) {
+        // Check if restaurant is within range of the customer's assumption
+        if (filterRestaurants[i].stars >= from && filterRestaurants[i].stars <= to) {
+            restaurantDiv += '<div class="restaurant"><h3>' + filterRestaurants[i].restaurantName + '</h3><span>';
+            // Draw the stars...
+            for (var b = 0; b < 5; b++) {
+                // filled one's..
+                if (b < filterRestaurants[i].stars) {
+                    restaurantDiv += '<span class="glyphicon glyphicon-star" id="restaurantStars" aria-hidden="true"/>';
+                } else {
+                    // empty one's
+                    restaurantDiv += '<span class="glyphicon glyphicon-star-empty" id="restaurantStars2" aria-hidden="true"/>';
                 }
-                restaurantDiv += '</span><p>' + restaurants[i].address_street + '</p><p>' + restaurants[i].address_city + '</p></div>';
-
-                $('#restaurants').append(restaurantDiv);
-                restaurantDiv = "";
             }
-        } else {
-            console.error('list out', restaurants[i].restaurantName);
+            restaurantDiv += '</span><p>' + filterRestaurants[i].address_street + '</p><p>' + filterRestaurants[i].address_city + '</p></div>';
+            $('#restaurants').append(restaurantDiv);
+            restaurantDiv = "";
         }
     }
 }
@@ -271,7 +263,7 @@ function dataHelper(result){
             "address_street": result.vicinity.substring(0, result.vicinity.indexOf(",")),
             "address_city": result.vicinity.substring(result.vicinity.indexOf(",")),
             "lat": result.geometry.location.lat(),
-            "long": result.geometry.location.lng(),
+            "lng": result.geometry.location.lng(),
             "stars": starsHelper,
             "heading": 34,
             "pitch": 10,
@@ -314,7 +306,7 @@ function callback(results, status) {
         if (!found){
             /////////////////////////
             // Add places not known to google but added by the customers. Only local places, please!
-            if (getDistanceInMeter(position, restaurants[my].lat, restaurants[my].long)<1000){
+            if (getDistanceInMeter(position, restaurants[my].lat, restaurants[my].lng)<1000){
                 restaurants[my].provided_by = "A";
                 filterRestaurants.push(restaurants[my]);
             }
@@ -337,31 +329,22 @@ function callback(results, status) {
                 icon: restaurantIcon,
                 title: filterRestaurants[r].restaurantName,
                 position: new google.maps.LatLng(
-                    filterRestaurants[r].lat, filterRestaurants[r].long
+                    filterRestaurants[r].lat, filterRestaurants[r].lng
                 )
             });
-        }
-
-
-
-
-
-
-
-
-        for (var i = 0; i < results.length; i++) {
 
             /////////// Click Event Listener
             google.maps.event.addListener(marker, 'click', function(){
                 var marker = this;
+                console.log("marker", marker.anchorPoint.x);
                 var panoramaDiv = document.getElementById('street-view');
                 var panorama = new google.maps.StreetViewPanorama(
                     panoramaDiv, {
                         position: marker.getPosition(),
                         pov: {
-                            heading: 34,
-                            pitch: 10
-                        }
+                             heading: marker.anchorPoint.x,
+                             pitch: 10
+                         }
                     });
                 //////////// Check if Streetview is available
                 var streetViewService = new google.maps.StreetViewService();
@@ -382,16 +365,14 @@ function callback(results, status) {
                 $('#title').empty();
                 $('#title').append(marker.getTitle());
                 $('#reviews').empty();
-                $('#myModal').modal('show');
-                console.log('restaurant_id', marker.get('restaurant_id'));
+                $('#showStreetView').modal('show');
             });
-            bounds.extend(results[i].geometry.location);
+            bounds.extend(new google.maps.LatLng( filterRestaurants[r].lat, filterRestaurants[r].lng));
         }
         listRestaurants(1,5);
        map.fitBounds(bounds);
     }
 };
-
 
 function initialize() {
     ////////// Geolocation
@@ -468,17 +449,23 @@ function initialize() {
                 restaurant_id: restaurants[i].id,
                 position:  new google.maps.LatLng(
                     restaurants[i].lat,
-                    restaurants[i].long
+                    restaurants[i].lng
                 ),
                 map: map,
                 title: restaurants[i].restaurantName
             });
         // marker.setValues({ locations});
-    //  filter
+
+        //Add listener
+        google.maps.event.addListener(map, 'click', function( event ){
+            console.log("leCut", "Latitude: "+event.latLng.lat()+" "+", longitude: "+event.latLng.lng() );
+            $('#addRestaurant').modal('show');
+        });
+
+        //  filter
 
         //     // Check if restaurant is on map ...
-        // if (bounds.contains(new google.maps.LatLng(restaurants[i].lat, restaurants[i].long))) {
-            console.log("inBounds:" , restaurants[i].restaurantName);
+        // if (bounds.contains(new google.maps.LatLng(restaurants[i].lat, restaurants[i].lng))) {
             /////////// Click Event Listener
             google.maps.event.addListener(marker, 'click', function(){
                 var marker = this;
@@ -508,8 +495,8 @@ function initialize() {
                     });
                 $('#title').empty();
                 $('#title').append(marker.getTitle());
-                $('#myModal').modal('show');
-                // console.log('restaurant_id', marker.get('restaurant_id'));
+                $('#showStreetView').modal('show');
+                console.log('restaurant_id', marker.get('restaurant_id'));
             });
         // } else {
         //     console.log("outBounds:", locations[i].name);
