@@ -95,16 +95,34 @@
           <div class="modal-dialog modal-md">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h4 class="modal-title" id="myModalLabel">Modal 1</h4>
+                      <h4 class="modal-title" id="myModalLabel">Add a new Restaurant...</h4>
                   </div>
 
                   <div class="modal-body">
                       <form role="form" action='#' method="post">
-                          <input type="text" class="form-control" placeholder="Username">
+                          <div><lable for="name">Name:
+                              <input type="text" id="name" class="form-control" placeholder="Name">
+                          </lable></div>
+                          <div><lable for="street">Street:
+                              <input type="text" id="street" class="form-control" placeholder="Street">
+                          </lable></div>
+                          <div><lable for="city">City:
+                              <input type="text" id="city" class="form-control" placeholder="city">
+                          </lable></div>
+                          <div><lable for="gps">GPS:
+                              <input type="text" id="gps" class="form-control" placeholder="(Autofilled)">
+                          </lable></div>
+                          <div><lable for="stars">Stars:
+                              <input type="number" id="stars" min="1" max="5" class="form-control">
+                          </lable></div>
+                          <div><lable for="rating">Rating:
+                              <input type="text" id="rating" class="form-control" placeholder="Tell us what you think...">
+                          </lable></div>
+                      </form>
                   </div>
                   <div class="modal-footer">
-                      <button type="button" class="btn btn-primary" id="signin">Sign In Now</button>
-                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <button type="button" onClick="saveRestaurant()" class="btn btn-primary" id="signin">Save</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
                   </div>
                   </form>
               </div>
