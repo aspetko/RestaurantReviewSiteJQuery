@@ -1,7 +1,7 @@
 // Helper for decentralized development
 ////////////////////////////////////////////////////
-var onSpot = false;
-// var onSpot = true;
+// var onSpot = false;
+var onSpot = true;
 
 ////////////////////////////////////////////////////////////
 // Make a real world application using Haversine algorithm
@@ -27,7 +27,7 @@ var bounds;
 var filterRestaurants;
 var map;
 var service;
-var infowindow;
+var infoWindow;
 var position;
 var restaurantIcon;
 
@@ -265,8 +265,8 @@ function dataHelper(result){
             "lat": result.geometry.location.lat(),
             "lng": result.geometry.location.lng(),
             "stars": starsHelper,
-            "heading": 34,
-            "pitch": 10,
+            // "heading": 34,
+            // "pitch": 10,
             "ratings": [
             ],
             "provided_by": "G"
@@ -301,7 +301,7 @@ function callback(results, status) {
         for (var j=0; j<results.length; j++){
             if (results[j].place_id === restaurants[my].id) {
                 found = true;
-            }
+            }   
         }
         if (!found){
             /////////////////////////
@@ -322,7 +322,7 @@ function callback(results, status) {
     if (status == google.maps.places.PlacesServiceStatus.OK) {
         bounds = new google.maps.LatLngBounds();
         for (var r=0; r<filterRestaurants.length; r++){
-            console.log("filterRestaurants contains:", filterRestaurants[r].restaurantName);
+            // console.log("filterRestaurants contains:", filterRestaurants[r].restaurantName);
 
             var marker = new google.maps.Marker({
                 map: map,
@@ -336,15 +336,16 @@ function callback(results, status) {
             /////////// Click Event Listener
             google.maps.event.addListener(marker, 'click', function(){
                 var marker = this;
-                console.log("marker", marker.anchorPoint.x);
+                console.log("marker2", marker);
                 var panoramaDiv = document.getElementById('street-view');
                 var panorama = new google.maps.StreetViewPanorama(
                     panoramaDiv, {
-                        position: marker.getPosition(),
-                        pov: {
-                             heading: marker.anchorPoint.x,
-                             pitch: 10
-                         }
+                        position: marker.getPosition()
+                        //,
+                        // pov: {
+                        //      heading: marker.anchorPoint.x,
+                        //      pitch: 10
+                        //  }
                     });
                 //////////// Check if Streetview is available
                 var streetViewService = new google.maps.StreetViewService();
@@ -356,16 +357,25 @@ function callback(results, status) {
                             $('#street-view').css("width", "500px");
                             $('#street-view').css("height", "600px");
                             map.setStreetView(panorama);
+                            $('#showStreetView').modal('show');
+                            $('#showStreetView').on('hidden.bs.modal', function () {
+                                $('#street-view').empty();
+                                $('#title').empty();
+                            });
                         } else {
                             $('#street-view').css("width", "500px");
                             $('#street-view').css("height", "20px");
                             $('#street-view').text("We deeply regret, unfortunately there is no picture available for this establishment.");
+                            $('#showStreetViewNotAvailible').modal('show');
+                            $('#showStreetViewNotAvailible').on('hidden.bs.modal', function () {
+                                $('#street-view').empty();
+                                $('#title').empty();
+                            })
+
                         }
                     });
-                $('#title').empty();
                 $('#title').append(marker.getTitle());
                 $('#reviews').empty();
-                $('#showStreetView').modal('show');
             });
             bounds.extend(new google.maps.LatLng( filterRestaurants[r].lat, filterRestaurants[r].lng));
         }
@@ -373,6 +383,24 @@ function callback(results, status) {
        map.fitBounds(bounds);
     }
 };
+
+function restoreOptions(controlPosition, zoomControlStyle, mapTypeId){
+    return {
+        center: position,
+        disableDefaultUI: false,
+        scrollWheel: true,
+        draggable: true,
+        maxZoom: 23,
+        minZoom: 3,
+        zoom: 15,
+        zoomControlOptions: {
+            position: controlPosition,
+            style: zoomControlStyle
+        },
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        streetViewControl: false
+    };
+}
 
 function initialize() {
     ////////// Geolocation
@@ -393,6 +421,8 @@ function initialize() {
                 };
                 infoWindow.setPosition(position);
                 infoWindow.setContent("Location found.");
+                infoWindow.open(map);
+                console.log("Location found.");
                 map.setCenter(position);
                 console.log("navigator.geolocation", onSpot, position);
             }, function () {
@@ -403,31 +433,35 @@ function initialize() {
             // Browser doesn't support Geolocation
             infoWindow.setPosition(position);
             infoWindow.setContent("Error: Your browser doesn't support geolocation.");
+            var marker = new google.maps.Marker(
+                {
+                    position:  position,
+                    map: map,
+                    title: "Error: Your browser doesn't support geolocation."
+                });
+            infoWindow.open(map, marker);
         }
     } else { // Set the loaction to fallback
         console.log("Using Fallback");
-        position = new google.maps.LatLng(48.175708, 11.7558223);
+        position = new google.maps.LatLng(48.171229, 11.746022);
+        infoWindow.setPosition(position);
+        infoWindow.setContent("Location found.");
+        // var marker = new google.maps.Marker(
+        //     {
+        //         position:  position,
+        //         map: map,
+        //         title: "Location found."
+        //     });
+        infoWindow.open(map);
     }
     /////// Display basic map
     var mapDiv = document.getElementById("mymap");
-    var mapOptions = {
-        center: position,
-        disableDefaultUI: false,
-        scrollWheel: true,
-        draggable: true,
-        maxZoom: 23,
-        minZoom: 3,
-        zoom: 15,
-        zoomControlOptions: {
-            position: google.maps.ControlPosition.BOTTOM_LEFT,
-            style: google.maps.ZoomControlStyle.DEFAULT
-        },
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
+    var mapOptions = restoreOptions(google.maps.ControlPosition.BOTTOM_LEFT,
+        google.maps.ZoomControlStyle.DEFAULT,
+        google.maps.MapTypeId.ROADMAP
         //     mapTypeId: google.maps.MapTypeId.SATELLITE
-        streetViewControl: false
-    };
+    );
     map = new google.maps.Map(mapDiv, mapOptions);
-    console.log("position", position.toString());
     var request = {
         location: position,
         radius: '1000',
@@ -436,6 +470,9 @@ function initialize() {
     // console.log("request",request.location.toString());
     google.maps.event.addListener(map, 'mousemove', function (event) {
         displayCoordinates(event.latLng);
+        var from = $("#fromStars").val();
+        var to = $("#toStars").val();
+        listRestaurants(from, to);
     });
 
     ////////////// Limit to the current location...
@@ -473,11 +510,12 @@ function initialize() {
                 var panoramaDiv = document.getElementById('street-view');
                 var panorama = new google.maps.StreetViewPanorama(
                     panoramaDiv, {
-                        position: marker.getPosition(),
-                        pov: {
-                            heading: 34,
-                            pitch: 10
-                        }
+                        position: marker.getPosition()
+                        // ,
+                        // pov: {
+                        //     heading: 34,
+                        //     pitch: 10
+                        // }
                     });
                 //////////// Check if Streetview is available
                 var streetViewService = new google.maps.StreetViewService();
