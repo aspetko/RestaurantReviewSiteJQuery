@@ -1,7 +1,7 @@
 // Helper for decentralized development
 ////////////////////////////////////////////////////
-// var onSpot = false;
-var onSpot = true;
+var onSpot = false;
+// var onSpot = true;
 
 ////////////////////////////////////////////////////////////
 // Make a real world application using Haversine algorithm
@@ -30,200 +30,20 @@ var service;
 var infoWindow;
 var position;
 var restaurantIcon;
+var restaurants = [];
+var geocoder;
 
 // Marker Icon
 //////////////////////
 function createIcon() {
     return {
-        // url: "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png",
+        url: "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png",
         size: new google.maps.Size(71, 71),
-        url: "https://maps.gstatic.com/mapfiles/place_api/icons/generic_business-71.png",
         origin: new google.maps.Point(0, 0),
         anchor: new google.maps.Point(17, 34),
         scaledSize: new google.maps.Size(25, 25)
     };
 }
-var restaurants = [];
-// var restaurants = [
-//     {
-//             "id": "ChIJJ4gGYsALnkcRyIw7cQY2hwo",
-//             "restaurantName": "Ivvi's Bistro",
-//             "address_street": "Westendstraße 1",
-//             "address_city": "85551 Kirchheim bei München",
-//             "lat": "48.174702",
-//             "lng": "11.750214",
-//             "stars": 4,
-//             "heading": 34,
-//             "pitch": 10,
-//             "ratings": [
-//                 {
-//                     "stars": "4",
-//                     "comment": "Great! But not many veggie options."
-//                 },
-//                 {
-//                     "stars": "5",
-//                     "comment": "My favorite restaurant!"
-//                 }
-//             ]
-//     },
-//     {
-//         "id": "ChIJweMU9sALnkcRGbNQiDWqskk",
-//         "restaurantName": "Indisches Restaurant Shiva",
-//         "address_street": "Am Brunnen 17",
-//         "address_city": "85551 Kirchheim bei München",
-//         "lat": "48.174033",
-//         "lng": "11.750664",
-//         "stars": 5,
-//         "heading": 34,
-//         "pitch": 10,
-//         "ratings": [
-//             {
-//                 "stars": "5",
-//                 "comment": "Tiny pizzeria next to Sacre Coeur!"
-//             },
-//             {
-//                 "stars": "3",
-//                 "comment": "Meh, it was fine."
-//             }
-//         ]
-//     },
-//     {
-//         "id": "ChIJBZOi5MELnkcRCz99WgCIHRI",
-//         "restaurantName": "Restaurant Olympia<br> Griechisches Restaurant",
-//         "address_street": "Heimstettner Str. 2",
-//         "address_city": "85551 Kirchheim",
-//         "lat": "48.175984",
-//         "lng": "11.752758",
-//         "stars": 5,
-//         "heading": 34,
-//         "pitch": 10,
-//         "ratings": [
-//             {
-//                 "stars": "5",
-//                 "comment": "Tiny pizzeria next to Sacre Coeur!"
-//             },
-//             {
-//                 "stars": "3",
-//                 "comment": "Meh, it was fine."
-//             }
-//         ]
-//     },
-//     {
-//         "id": "ChIJrwcr4cELnkcRxCxUuRM98pE",
-//         "restaurantName": "s`Kiramer Wirtshäusl",
-//         "address_street": "Münchener Strasse 5a",
-//         "address_city": "85551 Kirchheim bei München",
-//         "lat": "48.176406",
-//         "lng": "11.754196",
-//         "stars": 5,
-//         "heading": 34,
-//         "pitch": 10,
-//         "ratings": [
-//             {
-//                 "stars": "5",
-//                 "comment": "Tiny pizzeria next to Sacre Coeur!"
-//             },
-//             {
-//                 "stars": "3",
-//                 "comment": "Meh, it was fine."
-//             }
-//         ]
-//     },
-//     {
-//         "id": "ChIJ9-RYAuoLnkcRI6u-_Qgz8NM",
-//         "restaurantName": "Gasthof Neuwirt",
-//         "address_street": "Erdinger Str. 2",
-//         "address_city": "85551 Kirchheim bei München",
-//         "lat": "48.177089",
-//         "lng": "11.756471",
-//         "stars": 5,
-//         "heading": 34,
-//         "pitch": 10,
-//         "ratings": [
-//             {
-//                 "stars": "5",
-//                 "comment": "Tiny pizzeria next to Sacre Coeur!"
-//             },
-//             {
-//                 "stars": "3",
-//                 "comment": "Meh, it was fine."
-//             }
-//         ]
-//     },
-//     {
-//         "id": 6,
-//         "restaurantName": "KSC Geschäftsstelle Kirchheimer Sport-Club e.V.",
-//         "address_street": "Florianstraße 26",
-//         "address_city": "85551 Kirchheim bei München",
-//         "lat": "48.174498",
-//         "lng": "11.761715",
-//         "stars": 5,
-//         "heading": 34,
-//         "pitch": 10,
-//         "ratings": [
-//             {
-//                 "stars": "5",
-//                 "comment": "Tiny pizzeria next to Sacre Coeur!"
-//             },
-//             {
-//                 "stars": "3",
-//                 "comment": "Meh, it was fine."
-//             }
-//         ]
-//     },
-//     {
-//         "id": 7,
-//         "restaurantName": "Las Vegas - Should not show!",
-//         "address_street": "If this shows up, we did not filter the list correct!",
-//         "address_city": "Las Vegas",
-//         "lat": "36.255123",
-//         "lng": "-115.2383485",
-//         "stars": 5,
-//         "heading": 34,
-//         "pitch": 10,
-//         "ratings": [
-//             {
-//                 "stars": "5",
-//                 "comment": "Tiny pizzeria next to Sacre Coeur!"
-//             },
-//             {
-//                 "stars": "3",
-//                 "comment": "Meh, it was fine."
-//             }
-//         ]
-//     },
-//     {
-//         "id": 8,
-//         "restaurantName": "New York - Should not show either!",
-//         "address_street": "I always want to fly 9 hours to get a '7 Layer Burrito'",
-//         "address_city": "New York",
-//         "lat": "40.7143528",
-//         "lng": "-74.0059730",
-//         "stars": 5,
-//         "heading": 34,
-//         "pitch": 10,
-//         "ratings": [
-//             {
-//                 "stars": "5",
-//                 "comment": "Tiny pizzeria next to Sacre Coeur!"
-//             },
-//             {
-//                 "stars": "3",
-//                 "comment": "Meh, it was fine."
-//             }
-//         ]
-//     }
-// ];
-// console.log("Memory Dump", JSON.stringify(restaurants, null, 2));
-
-// function displayCoordinates(pnt) {
-//     var lat = pnt.lat();
-//     // lat = lat.toFixed(4);
-//     var lng = pnt.lng();
-//     // lng = lng.toFixed(4);
-//     // console.log("Latitude: " + lat + "  Longitude: " + lng);
-//     // $("#position").innerHTML = '<span>"Latitude: " + lat + "  Longitude: " + lng</span>';
-// }
 
 /**
  * Filter the restaurant list limited by bounds
@@ -273,9 +93,92 @@ function dataHelper(result){
         };
 };
 
-
-
+/**
+ * Callback for filtering restaurants.
+ * @param results found places by google
+ * @param status
+ */
 function callback(results, status) {
+    filterRestaurants = [];
+    restaurantIcon = createIcon();
+    //////////////////////////////////////////
+    // First add the most common denominators
+    for (var j=0; j<results.length; j++){
+        filterRestaurants.push(dataHelper(results[j]));
+    }
+
+    ////////////////////////////////////////
+    // Draw the search results on the map
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+        bounds = new google.maps.LatLngBounds();
+        for (var r=0; r<filterRestaurants.length; r++){
+            // console.log("filterRestaurants contains:", filterRestaurants[r].restaurantName);
+
+            var marker = new google.maps.Marker({
+                map: map,
+                icon: restaurantIcon,
+                title: filterRestaurants[r].restaurantName,
+                position: new google.maps.LatLng(
+                    filterRestaurants[r].lat, filterRestaurants[r].lng
+                )
+            });
+
+            /////////// Click Event Listener
+            google.maps.event.addListener(marker, 'click', function(){
+                var marker = this;
+                console.log("marker2", marker);
+                var panoramaDiv = document.getElementById('street-view');
+                var panorama = new google.maps.StreetViewPanorama(
+                    panoramaDiv, {
+                        position: marker.getPosition(),
+                        pov: {
+                            heading: marker.anchorPoint.x,
+                            pitch: 10
+                        }
+                    });
+                //////////// Check if Streetview is available
+                var streetViewService = new google.maps.StreetViewService();
+                var STREETVIEW_MAX_DISTANCE = 1000;
+
+                streetViewService.getPanoramaByLocation(marker.getPosition(), STREETVIEW_MAX_DISTANCE,
+                    function (streetViewPanoramaData, status) {
+                        if (status === google.maps.StreetViewStatus.OK) {
+                            $('#street-view').css("width", "500px");
+                            $('#street-view').css("height", "600px");
+                            map.setStreetView(panorama);
+                            $('#showStreetView').modal('show');
+                            $('#showStreetView').on('hidden.bs.modal', function () {
+                                $('#street-view').empty();
+                                $('#title').empty();
+                            });
+                            console.log("StreetViewStatus", "1Show Photo of "+marker.getTitle());
+                        } else {
+                            console.log("StreetViewStatus", "1no picture available for "+marker.getTitle());
+                            $('#street-view').css("width", "500px");
+                            $('#street-view').css("height", "20px");
+                            $('#street-view').text("We deeply regret, unfortunately there is no picture available for this establishment.");
+                            $('#showStreetViewNotAvailible').modal('show');
+                            $('#showStreetViewNotAvailible').on('hidden.bs.modal', function () {
+                                $('#street-view').empty();
+                                $('#title').empty();
+                            })
+
+                        }
+                    });
+                $('#title').append(marker.getTitle());
+                $('#reviews').empty();
+                $('#reviews').append("<p>Hello World</p>");
+
+            });
+            bounds.extend(new google.maps.LatLng( filterRestaurants[r].lat, filterRestaurants[r].lng));
+        }
+        listRestaurants(1,5);
+        map.fitBounds(bounds);
+    }
+
+}
+
+function callbackOrig(results, status) {
     filterRestaurants = [];
     restaurantIcon = createIcon();
     var found = false;
@@ -340,12 +243,11 @@ function callback(results, status) {
                 var panoramaDiv = document.getElementById('street-view');
                 var panorama = new google.maps.StreetViewPanorama(
                     panoramaDiv, {
-                        position: marker.getPosition()
-                        //,
-                        // pov: {
-                        //      heading: marker.anchorPoint.x,
-                        //      pitch: 10
-                        //  }
+                        position: marker.getPosition(),
+                        pov: {
+                             heading: marker.anchorPoint.x,
+                             pitch: 10
+                         }
                     });
                 //////////// Check if Streetview is available
                 var streetViewService = new google.maps.StreetViewService();
@@ -402,17 +304,63 @@ function restoreOptions(controlPosition, zoomControlStyle, mapTypeId){
     };
 }
 
-function initialize() {
-    fetch('/data/restaurants.json')
-        .then(function(restaurants){
-            return restaurants.json();
-        })
-        .then(function(restaurants){
-            console.log("file dump", restaurants);
-        });
+function displayCoordinates(pnt) {
+    var lat = pnt.lat();
+    // lat = lat.toFixed(4);
+    var lng = pnt.lng();
+    // lng = lng.toFixed(4);
+    // console.log("Latitude: " + lat + "  Longitude: " + lng);
+    $("#position").empty();
+    $("#position").append('<p>'+pnt.lat()+ ", " + pnt.lng()+'</p>');
+}
+function displayBounds(bounds) {
+    var southWest = bounds.getSouthWest();
+    var northEast = bounds.getNorthEast();
+    $("#bounds_northEast").empty();
+    $("#bounds_southWest").empty();
+    $("#bounds_northEast").append('<p>'+southWest.lat()+ ", " + southWest.lng()+'</p>');
+    $("#bounds_southWest").append('<p>'+northEast.lat()+ ", " + northEast.lng()+'</p>');
+}
 
+function addRestaurantDialog( event ){
+    position = new google.maps.LatLng(
+        event.latLng.lat(), event.latLng.lng()
+    );
+    geocoder.geocode({'location': position}, function(results, status) {
+        if (status === 'OK') {
+            if (results[0]) {
+                var input = results[0].formatted_address;
+                var addressStr = input.split(',', 3);
+                $("#streetRestaurantNew").val( addressStr[0].trim());
+                $("#cityRestaurantNew").val( addressStr[1].trim());
+            } else {
+                $("#cityRestaurantNew").val( 'No results found');
+            }
+        } else {
+            $("#cityRestaurantNew").val('Geocoder failed due to: ' + status);
+        }
+    });
+    // $("#nameRestaurantNew").val("nameRestaurantNew");
+    $("#gpsRestaurantNew").val(position.lat() +' / '+ position.lng());
+    // $("#starsRestaurantNew").val("starsRestaurantNew");
+    // $("#ratingRestaurantNew").val("ratingRestaurantNew");
+    $('#addRestaurant').modal('show');
+}
+
+function fallback(){
+    console.log("Using Fallback");
+    position = new google.maps.LatLng(48.171229, 11.746022);
+    infoWindow.setPosition(position);
+    infoWindow.setContent("Location found.");
+    infoWindow.open(map);
+    $("#position").innerHTML = '<span>48.171229, 11.746022</span>';
+}
+
+
+
+function initialize() {
     ////////// Geolocation
-    var geocoder = new window.google.maps.Geocoder();
+    geocoder = new window.google.maps.Geocoder();
     infoWindow = new window.google.maps.InfoWindow({map: map});
 
     ///////// Position = Golden Gate Bridge
@@ -420,6 +368,7 @@ function initialize() {
 
     // Try HTML5 geolocation.
     if (onSpot){
+        UsingHTML5Geolocation();
         console.log("Using HTML5 geolocation");
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function (thePosition) {
@@ -432,23 +381,22 @@ function initialize() {
                 infoWindow.open(map);
                 console.log("Location found.");
                 map.setCenter(position);
+                $("#position").empty();
+                $("#position").innerHTML = '<span>thePosition.coords.latitude+ ", " + thePosition.coords.longitude</span>';
                 console.log("navigator.geolocation", onSpot, position);
             }, function () {
                 infoWindow.setPosition(position);
                 infoWindow.setContent("Error: The Geolocation service failed.");
             });
         } else {
+            browserDoesntSupportGeoLocation();
             // Browser doesn't support Geolocation
             infoWindow.setPosition(position);
             infoWindow.setContent("Error: Your browser doesn't support geolocation.");
             infoWindow.open(map);
         }
     } else { // Set the loaction to fallback
-        console.log("Using Fallback");
-        position = new google.maps.LatLng(48.171229, 11.746022);
-        infoWindow.setPosition(position);
-        infoWindow.setContent("Location found.");
-        infoWindow.open(map);
+        fallback();
     }
     /////// Display basic map
     var mapDiv = document.getElementById("mymap");
@@ -463,15 +411,19 @@ function initialize() {
         radius: '1000',
         type: ['restaurant']
     };
+    //Add listener
+    google.maps.event.addListener(map, 'click', addRestaurantDialog);
     // console.log("request",request.location.toString());
     google.maps.event.addListener(map, 'bounds_changed', function () {
-        var bounds = map.getBounds();
-        console.log("chainmigration", map);
-        // displayCoordinates(event.latLng);
+        displayBounds(map.getBounds());
         var from = $("#fromStars").val();
         var to = $("#toStars").val();
         // listRestaurants(from, to);
     });
+    google.maps.event.addListener(map, 'mousemove', function (event) {
+        displayCoordinates(event.latLng);
+    });
+
 
     ////////////// Limit to the current location...
     service = new google.maps.places.PlacesService(map);
@@ -491,13 +443,6 @@ function initialize() {
             });
         // marker.setValues({ locations});
 
-        //Add listener
-        google.maps.event.addListener(map, 'click', function( event ){
-            position = new google.maps.LatLng(
-                event.latLng.lat(), event.latLng.lng()
-            );
-            $('#addRestaurant').modal('show');
-        });
 
         //  filter
 
@@ -524,8 +469,10 @@ function initialize() {
                 streetViewService.getPanoramaByLocation(marker.getPosition(), STREETVIEW_MAX_DISTANCE,
                     function (streetViewPanoramaData, status) {
                         if (status === google.maps.StreetViewStatus.OK) {
+                            console.log("StreetViewStatus", "Show Photo");
                             map.setStreetView(panorama);
                         } else {
+                            console.log("StreetViewStatus", "no picture available");
                             $('#street-view').css("width", "500px");
                             $('#street-view').css("height", "20px");
                             $('#street-view').text("We deeply regret, unfortunately there is no picture available for this establishment.");
@@ -555,31 +502,54 @@ function selectionChanged(){
     }
 }
 
-function saveRestaurant(){
+function load(item){
+    return JSON.parse(sessionStorage.getItem(item));
+}
 
-    var marker = new google.maps.Marker(
-        {
+function save(item, restaurants){
+    sessionStorage.setItem('restaurants', JSON.stringify(restaurants));
+}
+
+function memoryDump(item){
+    console.log(item, JSON.parse(sessionStorage.getItem(item)));
+}
+
+function saveRestaurant(){
+    var marker = new google.maps.Marker({
             restaurant_id: -1,
             position:  position,
             map: map,
-            title: "Hello World"
-        });
+            title: $("#nameRestaurantNew").val()
+    });
     $('#addRestaurant').modal('hide');
-    var starsHelper = 7;
-    var struct = {
+    var restaurants = load('restaurants');
+    restaurants.push({
             "id": -1,
-            "restaurantName": "Hello World",
-            "address_street": "Somewhere",
-            "address_city": "Rainbow",
+            "restaurantName": $("#nameRestaurantNew").val(),
+            "address_street": $("#streetRestaurantNew").val(),
+            "address_city": $("#cityRestaurantNew").val(),
             "lat": position.lat(),
             "lng": position.lng(),
-            "stars": starsHelper,
+            "stars": $("#starsRestaurantNew").val(),
             // "heading": 34,
             // "pitch": 10,
-            "ratings": [
+            "ratings": [{
+                "stars": $("#starsRatingRestaurantNew").val(),
+                "comment": $("#ratingRestaurantTextNew").val()
+            }
             ],
             "provided_by": "XXP"
-        };
-    restaurants.push(struct);
-    console.log("Memory Dump", restaurants);
+    });
+    save('restaurants', restaurants);
+    memoryDump('restaurants');
+
+    ///////////////////////////
+    // Reseting Dialog Values
+    $("#streetRestaurantNew").val("");
+    $("#cityRestaurantNew").val("");
+    $("#nameRestaurantNew").val("");
+    $("#gpsRestaurantNew").val("");
+    $("#starsRestaurantNew").val("");
+    $("#ratingRestaurantNew").val("");
+
 }
