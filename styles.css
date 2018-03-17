@@ -78,3 +78,9 @@ footer {
   left: 0;
   right: 0;
 }
+
+@media (min-width: 1200px) {
+  .container {
+    width: 850px;
+  }
+}
